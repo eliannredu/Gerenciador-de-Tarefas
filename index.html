@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Survival Dodge</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #222 0%, #0f0f0f 65%);
+      font-family: Arial, Helvetica, sans-serif;
+      color: #fff;
+    }
+
+    .game-shell {
+      width: min(92vw, 520px);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    canvas {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border: 3px solid #ffffff30;
+      border-radius: 10px;
+      display: block;
+      background: linear-gradient(#171717, #090909);
+      box-shadow: 0 20px 40px #0008;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.8rem;
+      background: #000000bb;
+      border-radius: 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    .canvas-wrap {
+      position: relative;
+    }
+
+    .overlay h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #ff6b6b;
+    }
+
+    .overlay p {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      background: #2f7df7;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <h1>Survival Dodge</h1>
+    <div class="hud">
+      <span id="score">Score: 0</span>
+      <span>Move: ⬅️ ➡️</span>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="game" width="480" height="360" aria-label="Survival dodge game canvas"></canvas>
+
+      <div class="overlay" id="gameOverOverlay">
+        <h2>Game Over</h2>
+        <p id="finalScore">Final Score: 0</p>
+        <button id="restartBtn">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const scoreLabel = document.getElementById('score');
+    const overlay = document.getElementById('gameOverOverlay');
+    const finalScoreLabel = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    const player = {
+      width: 45,
+      height: 20,
+      x: (canvas.width - 45) / 2,
+      y: canvas.height - 35,
+      speed: 6,
+      color: '#2690ff'
+    };
+
+    let obstacles = [];
+    let score = 0;
+    let gameOver = false;
+    let animationId = 0;
+    let spawnTimer = 0;
+
+    // Stores active keyboard states for smooth movement.
+    const keys = {
+      ArrowLeft: false,
+      ArrowRight: false
+    };
+
+    const gameConfig = {
+      baseObstacleSpeed: 2,
+      maxObstacleSpeed: 8,
+      spawnInterval: 700,
+      minSpawnInterval: 220,
+      obstacleMinSize: 18,
+      obstacleMaxSize: 38,
+      scorePerSecond: 10
+    };
+
+    function resetGame() {
+      obstacles = [];
+      score = 0;
+      gameOver = false;
+      spawnTimer = 0;
+      player.x = (canvas.width - player.width) / 2;
+      scoreLabel.textContent = 'Score: 0';
+      overlay.style.display = 'none';
+      cancelAnimationFrame(animationId);
+      lastFrameTime = performance.now();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function createObstacle() {
+      const size = randomRange(gameConfig.obstacleMinSize, gameConfig.obstacleMaxSize);
+      obstacles.push({
+        x: Math.random() * (canvas.width - size),
+        y: -size,
+        width: size,
+        height: size,
+        speed: currentObstacleSpeed(),
+        color: '#ff4545'
+      });
+    }
+
+    function currentObstacleSpeed() {
+      // Difficulty ramps up over time by increasing fall speed.
+      return Math.min(gameConfig.baseObstacleSpeed + score / 120, gameConfig.maxObstacleSpeed);
+    }
+
+    function currentSpawnInterval() {
+      // Spawn rate increases gradually as score climbs.
+      return Math.max(gameConfig.spawnInterval - score * 4, gameConfig.minSpawnInterval);
+    }
+
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function update(deltaMs) {
+      // Handle player movement.
+      if (keys.ArrowLeft) {
+        player.x -= player.speed;
+      }
+      if (keys.ArrowRight) {
+        player.x += player.speed;
+      }
+
+      // Keep player inside the canvas.
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+
+      // Spawn obstacles based on elapsed time and current difficulty.
+      spawnTimer += deltaMs;
+      if (spawnTimer >= currentSpawnInterval()) {
+        spawnTimer = 0;
+        createObstacle();
+      }
+
+      // Move obstacles and keep only visible ones.
+      obstacles.forEach((obstacle) => {
+        obstacle.y += obstacle.speed;
+      });
+      obstacles = obstacles.filter((obstacle) => obstacle.y <= canvas.height + obstacle.height);
+
+      // Increase score over time.
+      score += (deltaMs / 1000) * gameConfig.scorePerSecond;
+      scoreLabel.textContent = `Score: ${Math.floor(score)}`;
+
+      // Collision detection (AABB).
+      for (const obstacle of obstacles) {
+        if (
+          obstacle.x < player.x + player.width &&
+          obstacle.x + obstacle.width > player.x &&
+          obstacle.y < player.y + player.height &&
+          obstacle.y + obstacle.height > player.y
+        ) {
+          endGame();
+          return;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw player.
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      // Draw obstacles.
+      obstacles.forEach((obstacle) => {
+        ctx.fillStyle = obstacle.color;
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      });
+    }
+
+    function endGame() {
+      gameOver = true;
+      cancelAnimationFrame(animationId);
+      finalScoreLabel.textContent = `Final Score: ${Math.floor(score)}`;
+      overlay.style.display = 'flex';
+    }
+
+    let lastFrameTime = performance.now();
+
+    function gameLoop(timestamp) {
+      if (gameOver) return;
+
+      const deltaMs = timestamp - lastFrameTime;
+      lastFrameTime = timestamp;
+
+      update(deltaMs);
+      draw();
+
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    // Keyboard input listeners.
+    window.addEventListener('keydown', (event) => {
+      if (event.key in keys) {
+        keys[event.key] = true;
+      }
+    });
+
+    window.addEventListener('keyup', (event) => {
+      if (event.key in keys) {
+        keys[event.key] = false;
+      }
+    });
+
+    restartBtn.addEventListener('click', resetGame);
+
+    resetGame();
+  </script>
+</body>
+</html>
