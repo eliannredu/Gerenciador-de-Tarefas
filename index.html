@@ -1,12 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Survival Dodge</title>
+  <title>Esteira de Implantação</title>
   <style>
     :root {
       color-scheme: dark;
+      --bg: #020617;
+      --bg-soft: #0f172a;
+      --surface: rgba(15, 23, 42, 0.88);
+      --surface-strong: rgba(30, 41, 59, 0.98);
+      --surface-light: rgba(51, 65, 85, 0.72);
+      --border: rgba(148, 163, 184, 0.24);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #fb7185;
+      --shadow: 0 24px 60px rgba(2, 6, 23, 0.42);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
     }
 
     * {
@@ -16,278 +33,1635 @@
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, #222 0%, #0f0f0f 65%);
-      font-family: Arial, Helvetica, sans-serif;
-      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(167, 139, 250, 0.12), transparent 26%),
+        linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      font-family: Inter, Arial, Helvetica, sans-serif;
     }
 
-    .game-shell {
-      width: min(92vw, 520px);
-      text-align: center;
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
     }
 
-    h1 {
-      margin: 0 0 0.75rem;
-      font-size: 1.5rem;
-      letter-spacing: 0.04em;
-    }
-
-    .hud {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    canvas {
+    button,
+    input,
+    select,
+    textarea {
       width: 100%;
-      aspect-ratio: 4 / 3;
-      border: 3px solid #ffffff30;
-      border-radius: 10px;
-      display: block;
-      background: linear-gradient(#171717, #090909);
-      box-shadow: 0 20px 40px #0008;
-    }
-
-    .overlay {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 0.8rem;
-      background: #000000bb;
-      border-radius: 10px;
-      backdrop-filter: blur(2px);
-    }
-
-    .canvas-wrap {
-      position: relative;
-    }
-
-    .overlay h2 {
-      margin: 0;
-      font-size: 1.8rem;
-      color: #ff6b6b;
-    }
-
-    .overlay p {
-      margin: 0;
-      font-size: 1.1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      padding: 12px 14px;
+      color: var(--text);
+      background: rgba(15, 23, 42, 0.95);
     }
 
     button {
-      border: 0;
-      border-radius: 999px;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      font-weight: 700;
-      background: #2f7df7;
-      color: #fff;
       cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 92px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .primary-btn {
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    }
+
+    .secondary-btn {
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .danger-btn {
+      background: rgba(127, 29, 29, 0.72);
+      border-color: rgba(251, 113, 133, 0.34);
+    }
+
+    .success-btn {
+      background: rgba(20, 83, 45, 0.86);
+      border-color: rgba(34, 197, 94, 0.34);
+    }
+
+    .screen {
+      min-height: 100vh;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login-screen {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .login-card,
+    .hero,
+    .metric-card,
+    .panel,
+    .kanban-column,
+    .client-card,
+    .empty-state,
+    .user-row,
+    .demo-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .login-card {
+      width: min(1120px, 100%);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(320px, 1.08fr) minmax(320px, 0.92fr);
+    }
+
+    .login-hero,
+    .login-form-wrap {
+      padding: 34px;
+    }
+
+    .login-hero {
+      background: linear-gradient(160deg, rgba(14, 165, 233, 0.28), rgba(15, 23, 42, 0.98));
+      display: grid;
+      gap: 22px;
+      align-content: center;
+    }
+
+    .login-hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+    }
+
+    .login-hero p,
+    .helper-text,
+    .section-description,
+    .empty-state,
+    .client-card p,
+    .toolbar-note,
+    .footer-note,
+    .status-msg {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .pill-row,
+    .hero-badges,
+    .user-meta,
+    .tag-row,
+    .pipeline-steps,
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill,
+    .badge,
+    .tag,
+    .meta-pill,
+    .step-chip,
+    .role-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .demo-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .demo-card {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .demo-card strong,
+    .user-row strong,
+    .metric-card strong,
+    .hero-highlight strong,
+    .client-card h4 {
+      display: block;
+    }
+
+    .login-form-wrap {
+      display: grid;
+      align-content: center;
+      gap: 18px;
+      background: rgba(2, 6, 23, 0.48);
+    }
+
+    .login-form-wrap h2,
+    .panel h2,
+    .kanban-header h2,
+    .user-panel h2 {
+      margin: 0 0 8px;
+      font-size: 1.28rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .status-msg {
+      min-height: 24px;
+      font-size: 0.92rem;
+    }
+
+    .status-msg.error {
+      color: #fecaca;
+    }
+
+    .status-msg.success {
+      color: #86efac;
+    }
+
+    .app-shell {
+      width: min(1480px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 24px 0 38px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.78);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .hero {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      line-height: 1.08;
+    }
+
+    .hero-highlight {
+      border-radius: 24px;
+      padding: 22px;
+      background: linear-gradient(160deg, rgba(14, 165, 233, 0.3), rgba(15, 23, 42, 0.96));
+      display: grid;
+      gap: 18px;
+      align-content: space-between;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .metric-card {
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .metric-card span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .metric-card strong {
+      margin-top: 10px;
+      font-size: 1.9rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(320px, 370px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border-radius: 24px;
+      padding: 22px;
+    }
+
+    .panel form,
+    .user-management-form {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .side-actions,
+    .user-management-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .helper-list {
+      margin: 18px 0 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .kanban-board {
+      display: grid;
+      gap: 18px;
+    }
+
+    .kanban-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 240px 240px;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(252px, 1fr));
+      gap: 18px;
+      align-items: start;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .kanban-column {
+      border-radius: 24px;
+      padding: 18px;
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .kanban-column header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .kanban-column h3,
+    .user-panel h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .column-count {
+      min-width: 34px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(15, 23, 42, 0.94);
+      color: #bfdbfe;
+      font-size: 0.85rem;
+    }
+
+    .column-accent {
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.24), currentColor);
+      opacity: 0.85;
+    }
+
+    .cards-stack,
+    .users-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .client-card,
+    .user-row {
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.92);
+    }
+
+    .client-card p,
+    .user-row p {
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .card-actions,
+    .user-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .card-actions {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .user-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .empty-state {
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+      border-style: dashed;
+      background: rgba(15, 23, 42, 0.42);
+    }
+
+    .bottom-panels {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+      align-items: start;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1220px) {
+      .login-card,
+      .hero,
+      .workspace,
+      .metrics-grid,
+      .bottom-panels {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .app-shell {
+        width: min(100vw - 18px, 100%);
+        padding-top: 18px;
+      }
+
+      .topbar,
+      .kanban-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .columns-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kanban-column {
+        min-height: auto;
+      }
+
+      .card-actions,
+      .user-actions {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="game-shell">
-    <h1>Survival Dodge</h1>
-    <div class="hud">
-      <span id="score">Score: 0</span>
-      <span>Move: ⬅️ ➡️</span>
-    </div>
+  <section class="screen login-screen" id="loginScreen">
+    <div class="login-card">
+      <article class="login-hero">
+        <div>
+          <div class="pill-row">
+            <span class="pill">CRM de implantação</span>
+            <span class="pill">Kanban multiusuário</span>
+          </div>
+          <h1>Controle a esteira por Agente de Implantação, com supervisão central.</h1>
+          <p>
+            Cada Agente de Implantação visualiza apenas os clientes sob sua responsabilidade. O perfil Supervisor acompanha toda a
+            carteira do setor e administra permissões da equipe.
+          </p>
+        </div>
 
-    <div class="canvas-wrap">
-      <canvas id="game" width="480" height="360" aria-label="Survival dodge game canvas"></canvas>
+        <div class="demo-grid">
+          <article class="demo-card">
+            <strong>Acesso inicial</strong>
+            <p class="helper-text">Use um dos usuários de demonstração para entrar e validar os diferentes perfis.</p>
+          </article>
+          <article class="demo-card">
+            <strong>Supervisor</strong>
+            <p class="helper-text">Login: <code>supervisor</code> · Senha: <code>super123</code></p>
+          </article>
+          <article class="demo-card">
+            <strong>Agentes de Implantação</strong>
+            <p class="helper-text">Login: <code>ana</code> / <code>joao</code> · Senha: <code>implantacao123</code></p>
+          </article>
+        </div>
+      </article>
 
-      <div class="overlay" id="gameOverOverlay">
-        <h2>Game Over</h2>
-        <p id="finalScore">Final Score: 0</p>
-        <button id="restartBtn">Restart</button>
-      </div>
+      <article class="login-form-wrap">
+        <div>
+          <h2>Entrar na plataforma</h2>
+          <p class="helper-text">A autenticação é local e pensada para prototipação interna.</p>
+        </div>
+
+        <form id="loginForm" class="form-grid">
+          <label>
+            Usuário
+            <input type="text" name="username" id="loginUsername" placeholder="Ex.: supervisor" required />
+          </label>
+
+          <label>
+            Senha
+            <input type="password" name="password" id="loginPassword" placeholder="Digite sua senha" required />
+          </label>
+
+          <button type="submit" class="primary-btn">Acessar sistema</button>
+        </form>
+
+        <p class="status-msg" id="loginStatus"></p>
+      </article>
     </div>
-  </div>
+  </section>
+
+  <section class="screen hidden" id="appScreen">
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>Esteira de Implantação</h1>
+          <p id="welcomeText">Acompanhamento operacional por usuário.</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="badge" id="currentUserBadge">Usuário</span>
+          <span class="badge" id="currentScopeBadge">Escopo</span>
+          <button type="button" class="secondary-btn" id="logoutBtn">Sair</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h2 id="heroTitle">Sua carteira de clientes em implantação.</h2>
+          <p id="heroDescription" class="section-description">
+            Cadastre novos projetos, acompanhe o avanço por etapa e mantenha a operação do time organizada.
+          </p>
+          <div class="hero-badges">
+            <span class="badge">Login local</span>
+            <span class="badge">Visão por usuário</span>
+            <span class="badge">Permissões por perfil</span>
+            <span class="badge">Kanban do setor</span>
+          </div>
+        </div>
+
+        <aside class="hero-highlight">
+          <div>
+            <span class="section-description">Fluxo sugerido</span>
+            <div class="pipeline-steps" id="pipelineSteps"></div>
+          </div>
+          <div>
+            <strong id="heroAsideTitle">Gestão operacional da implantação</strong>
+            <p id="heroAsideText" class="helper-text"></p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="metrics-grid" id="metricsGrid"></section>
+
+      <section class="workspace">
+        <aside class="panel">
+          <h2>Novo cliente / projeto</h2>
+          <p id="formDescription">Cadastre cada implantação e vincule o cliente ao Agente de Implantação responsável.</p>
+
+          <form id="clientForm">
+            <label>
+              Cliente
+              <input type="text" name="clientName" id="clientName" placeholder="Ex.: Clínica Vida" required />
+            </label>
+
+            <label>
+              Segmento
+              <input type="text" name="clientSegment" id="clientSegment" placeholder="Ex.: Saúde" required />
+            </label>
+
+            <label>
+              Agente de Implantação
+              <select name="clientAssignee" id="clientAssignee"></select>
+            </label>
+
+            <label>
+              Contato do cliente
+              <input type="text" name="clientContact" id="clientContact" placeholder="Ex.: Marcos - TI" required />
+            </label>
+
+            <label>
+              Prioridade
+              <select name="clientPriority" id="clientPriority">
+                <option value="Alta">Alta</option>
+                <option value="Média" selected>Média</option>
+                <option value="Baixa">Baixa</option>
+              </select>
+            </label>
+
+            <label>
+              Etapa inicial
+              <select name="clientStage" id="clientStage"></select>
+            </label>
+
+            <label>
+              Próxima ação
+              <textarea name="clientNotes" id="clientNotes" placeholder="Ex.: Validar importação de base e agendar treinamento com financeiro."></textarea>
+            </label>
+
+            <button type="submit" class="primary-btn">Adicionar ao pipeline</button>
+          </form>
+
+          <div class="side-actions">
+            <button type="button" class="secondary-btn" id="loadExamplesBtn">Carregar exemplos</button>
+            <button type="button" class="danger-btn" id="resetBoardBtn">Limpar meus clientes</button>
+          </div>
+
+          <ul class="helper-list">
+            <li>Agentes de Implantação visualizam apenas sua carteira. Supervisores podem ver e filtrar toda a operação.</li>
+            <li>O Supervisor também pode redistribuir clientes alterando o Agente de Implantação no cadastro de novos projetos.</li>
+            <li>Os dados ficam salvos no navegador com <code>localStorage</code>, ideal para protótipos internos.</li>
+          </ul>
+        </aside>
+
+        <section class="kanban-board">
+          <div class="kanban-header">
+            <div>
+              <h2>Quadro Kanban da implantação</h2>
+              <p id="boardDescription">Veja a esteira operacional da equipe.</p>
+            </div>
+            <span class="badge" id="lastUpdateBadge">Atualizado agora</span>
+          </div>
+
+          <div class="toolbar">
+            <label>
+              Buscar cliente, segmento ou contato
+              <input type="search" id="searchInput" placeholder="Digite para filtrar cards" />
+            </label>
+
+            <label>
+              Filtrar por Agente de Implantação
+              <select id="ownerFilter"></select>
+            </label>
+
+            <label>
+              Visão da esteira
+              <select id="visibilityFilter">
+                <option value="all">Tudo que posso ver</option>
+                <option value="mine">Somente minha carteira</option>
+              </select>
+            </label>
+          </div>
+
+          <p class="toolbar-note" id="toolbarNote"></p>
+          <div class="columns-grid" id="kanbanColumns"></div>
+        </section>
+      </section>
+
+      <section class="bottom-panels">
+        <section class="panel user-panel" id="userPanel">
+          <h2>Administração de usuários</h2>
+          <p class="section-description">Somente o Supervisor pode criar usuários e definir permissões.</p>
+
+          <form id="userForm" class="user-management-form">
+            <label>
+              Nome completo
+              <input type="text" name="fullName" id="fullName" placeholder="Ex.: Fernanda Lima" required />
+            </label>
+
+            <label>
+              Login
+              <input type="text" name="username" id="newUsername" placeholder="Ex.: fernanda" required />
+            </label>
+
+            <label>
+              Senha inicial
+              <input type="text" name="password" id="newPassword" placeholder="Defina uma senha" required />
+            </label>
+
+            <label>
+              Perfil
+              <select name="role" id="userRole">
+                <option value="agent">Agente de Implantação</option>
+                <option value="supervisor">Supervisor</option>
+              </select>
+            </label>
+
+            <button type="submit" class="success-btn">Salvar usuário</button>
+          </form>
+
+          <div class="user-management-actions">
+            <button type="button" class="secondary-btn" id="loadUserExamplesBtn">Recarregar usuários padrão</button>
+          </div>
+
+          <p class="status-msg" id="userFormStatus"></p>
+        </section>
+
+        <section class="panel">
+          <h2>Agentes cadastrados</h2>
+          <p class="section-description" id="usersPanelDescription">Visão atual dos acessos do time.</p>
+          <div class="users-list" id="usersList"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Segurança e senha</h2>
+          <p class="section-description" id="accountPanelDescription">Altere sua senha de acesso e, se for Supervisor, redefina senhas da equipe.</p>
+
+          <form id="passwordForm" class="user-management-form">
+            <label>
+              Senha atual
+              <input type="password" name="currentPassword" id="currentPassword" placeholder="Digite sua senha atual" required />
+            </label>
+
+            <label>
+              Nova senha
+              <input type="password" name="newPassword" id="ownNewPassword" placeholder="Defina uma nova senha" required />
+            </label>
+
+            <label>
+              Confirmar nova senha
+              <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Repita a nova senha" required />
+            </label>
+
+            <button type="submit" class="primary-btn">Trocar minha senha</button>
+          </form>
+
+          <form id="supervisorPasswordForm" class="user-management-form hidden">
+            <label>
+              Usuário da equipe
+              <select name="targetUserId" id="targetUserId"></select>
+            </label>
+
+            <label>
+              Nova senha para o usuário
+              <input type="text" name="resetPassword" id="resetPassword" placeholder="Defina a nova senha" required />
+            </label>
+
+            <button type="submit" class="secondary-btn">Redefinir senha do usuário</button>
+          </form>
+
+          <p class="status-msg" id="passwordStatus"></p>
+        </section>
+      </section>
+
+      <p class="footer-note">Protótipo de autenticação e Kanban para o setor de implantação de software.</p>
+    </main>
+  </section>
 
   <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
+    const USERS_KEY = 'implantacao-users-v1';
+    const CLIENTS_KEY = 'implantacao-clients-v2';
+    const SESSION_KEY = 'implantacao-session-v1';
 
-    const scoreLabel = document.getElementById('score');
-    const overlay = document.getElementById('gameOverOverlay');
-    const finalScoreLabel = document.getElementById('finalScore');
-    const restartBtn = document.getElementById('restartBtn');
+    const stages = [
+      { id: 'diagnostico', title: 'Diagnóstico', accent: '#38bdf8' },
+      { id: 'estruturacao', title: 'Estruturação', accent: '#a78bfa' },
+      { id: 'treinamento-comercial', title: 'Treinamento - Módulo Comercial', accent: '#22c55e' }
+    ];
 
-    const player = {
-      width: 45,
-      height: 20,
-      x: (canvas.width - 45) / 2,
-      y: canvas.height - 35,
-      speed: 6,
-      color: '#2690ff'
+    const defaultUsers = [
+      {
+        id: 'user-supervisor',
+        fullName: 'Supervisor do Setor',
+        username: 'supervisor',
+        password: 'super123',
+        role: 'supervisor',
+        active: true
+      },
+      {
+        id: 'user-ana',
+        fullName: 'Ana Paula',
+        username: 'ana',
+        password: 'implantacao123',
+        role: 'agent',
+        active: true
+      },
+      {
+        id: 'user-joao',
+        fullName: 'João Vitor',
+        username: 'joao',
+        password: 'implantacao123',
+        role: 'agent',
+        active: true
+      }
+    ];
+
+    const defaultClients = [
+      {
+        id: crypto.randomUUID(),
+        name: 'Clínica Vida',
+        segment: 'Saúde',
+        assigneeId: 'user-ana',
+        contact: 'Marcos - TI',
+        priority: 'Alta',
+        stage: 'diagnostico',
+        notes: 'Consolidar o relatório de diagnóstico com processos, integrações e regras críticas do cliente.',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'LogMais Transportes',
+        segment: 'Logística',
+        assigneeId: 'user-joao',
+        contact: 'Renata - Operações',
+        priority: 'Média',
+        stage: 'estruturacao',
+        notes: 'Organizar a estrutura inicial do projeto e validar responsáveis, cronograma e cadastros-base.',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Grupo Solaris',
+        segment: 'Educação',
+        assigneeId: 'user-ana',
+        contact: 'Patrícia - Administrativo',
+        priority: 'Alta',
+        stage: 'treinamento-comercial',
+        notes: 'Iniciar o treinamento pelo módulo Comercial e registrar dúvidas operacionais da equipe do cliente.',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Mercado Nova Era',
+        segment: 'Varejo',
+        assigneeId: 'user-joao',
+        contact: 'Carlos - Compras',
+        priority: 'Baixa',
+        stage: 'treinamento-comercial',
+        notes: 'Cliente já avançou para treinamento no módulo Comercial e o Supervisor consegue identificar o Agente de Implantação responsável.',
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    const state = {
+      users: [],
+      clients: [],
+      currentUser: null,
+      search: '',
+      owner: '',
+      visibility: 'all'
     };
 
-    let obstacles = [];
-    let score = 0;
-    let gameOver = false;
-    let animationId = 0;
-    let spawnTimer = 0;
+    const loginScreen = document.getElementById('loginScreen');
+    const appScreen = document.getElementById('appScreen');
+    const loginForm = document.getElementById('loginForm');
+    const loginStatus = document.getElementById('loginStatus');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    // Stores active keyboard states for smooth movement.
-    const keys = {
-      ArrowLeft: false,
-      ArrowRight: false
-    };
+    const currentUserBadge = document.getElementById('currentUserBadge');
+    const currentScopeBadge = document.getElementById('currentScopeBadge');
+    const welcomeText = document.getElementById('welcomeText');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDescription = document.getElementById('heroDescription');
+    const heroAsideTitle = document.getElementById('heroAsideTitle');
+    const heroAsideText = document.getElementById('heroAsideText');
+    const formDescription = document.getElementById('formDescription');
+    const boardDescription = document.getElementById('boardDescription');
+    const toolbarNote = document.getElementById('toolbarNote');
+    const usersPanelDescription = document.getElementById('usersPanelDescription');
+    const accountPanelDescription = document.getElementById('accountPanelDescription');
 
-    const gameConfig = {
-      baseObstacleSpeed: 2,
-      maxObstacleSpeed: 8,
-      spawnInterval: 700,
-      minSpawnInterval: 220,
-      obstacleMinSize: 18,
-      obstacleMaxSize: 38,
-      scorePerSecond: 10
-    };
+    const clientForm = document.getElementById('clientForm');
+    const clientAssignee = document.getElementById('clientAssignee');
+    const stageSelect = document.getElementById('clientStage');
+    const loadExamplesBtn = document.getElementById('loadExamplesBtn');
+    const resetBoardBtn = document.getElementById('resetBoardBtn');
+    const metricsGrid = document.getElementById('metricsGrid');
+    const pipelineSteps = document.getElementById('pipelineSteps');
+    const lastUpdateBadge = document.getElementById('lastUpdateBadge');
+    const searchInput = document.getElementById('searchInput');
+    const ownerFilter = document.getElementById('ownerFilter');
+    const visibilityFilter = document.getElementById('visibilityFilter');
+    const kanbanColumns = document.getElementById('kanbanColumns');
 
-    function resetGame() {
-      obstacles = [];
-      score = 0;
-      gameOver = false;
-      spawnTimer = 0;
-      player.x = (canvas.width - player.width) / 2;
-      scoreLabel.textContent = 'Score: 0';
-      overlay.style.display = 'none';
-      cancelAnimationFrame(animationId);
-      lastFrameTime = performance.now();
-      animationId = requestAnimationFrame(gameLoop);
+    const userPanel = document.getElementById('userPanel');
+    const userForm = document.getElementById('userForm');
+    const userFormStatus = document.getElementById('userFormStatus');
+    const usersList = document.getElementById('usersList');
+    const loadUserExamplesBtn = document.getElementById('loadUserExamplesBtn');
+    const passwordForm = document.getElementById('passwordForm');
+    const supervisorPasswordForm = document.getElementById('supervisorPasswordForm');
+    const targetUserId = document.getElementById('targetUserId');
+    const passwordStatus = document.getElementById('passwordStatus');
+
+    function seedUsersIfNeeded() {
+      const users = readStorage(USERS_KEY, []);
+      if (users.length === 0) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
+      }
     }
 
-    function createObstacle() {
-      const size = randomRange(gameConfig.obstacleMinSize, gameConfig.obstacleMaxSize);
-      obstacles.push({
-        x: Math.random() * (canvas.width - size),
-        y: -size,
-        width: size,
-        height: size,
-        speed: currentObstacleSpeed(),
-        color: '#ff4545'
+    function seedClientsIfNeeded() {
+      const clients = readStorage(CLIENTS_KEY, []);
+      if (clients.length === 0) {
+        localStorage.setItem(CLIENTS_KEY, JSON.stringify(defaultClients));
+      }
+    }
+
+    function readStorage(key, fallback) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+      } catch (error) {
+        console.error(`Falha ao ler ${key}:`, error);
+        return fallback;
+      }
+    }
+
+    function writeStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function normalize(text) {
+      return text.toString().trim().toLowerCase();
+    }
+
+    function getUserById(userId) {
+      return state.users.find((user) => user.id === userId) ?? null;
+    }
+
+    function isSupervisor() {
+      return state.currentUser?.role === 'supervisor';
+    }
+
+    function availableAssignees() {
+      return state.users.filter((user) => user.active);
+    }
+
+    function visibleClientsBase() {
+      if (!state.currentUser) return [];
+      if (isSupervisor() && state.visibility === 'all') {
+        return state.clients;
+      }
+      return state.clients.filter((client) => client.assigneeId === state.currentUser.id);
+    }
+
+    function filteredClients() {
+      return visibleClientsBase().filter((client) => {
+        const assignee = getUserById(client.assigneeId);
+        const haystack = [client.name, client.segment, client.contact, client.notes, assignee?.fullName ?? '']
+          .join(' ')
+          .toLowerCase();
+        const matchesSearch = !state.search || haystack.includes(state.search);
+        const matchesOwner = !state.owner || client.assigneeId === state.owner;
+        return matchesSearch && matchesOwner;
       });
     }
 
-    function currentObstacleSpeed() {
-      // Difficulty ramps up over time by increasing fall speed.
-      return Math.min(gameConfig.baseObstacleSpeed + score / 120, gameConfig.maxObstacleSpeed);
+    function priorityWeight(priority) {
+      return { Alta: 0, Média: 1, Baixa: 2 }[priority] ?? 3;
     }
 
-    function currentSpawnInterval() {
-      // Spawn rate increases gradually as score climbs.
-      return Math.max(gameConfig.spawnInterval - score * 4, gameConfig.minSpawnInterval);
-    }
-
-    function randomRange(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    function update(deltaMs) {
-      // Handle player movement.
-      if (keys.ArrowLeft) {
-        player.x -= player.speed;
-      }
-      if (keys.ArrowRight) {
-        player.x += player.speed;
-      }
-
-      // Keep player inside the canvas.
-      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-
-      // Spawn obstacles based on elapsed time and current difficulty.
-      spawnTimer += deltaMs;
-      if (spawnTimer >= currentSpawnInterval()) {
-        spawnTimer = 0;
-        createObstacle();
-      }
-
-      // Move obstacles and keep only visible ones.
-      obstacles.forEach((obstacle) => {
-        obstacle.y += obstacle.speed;
+    function sortClients(clients) {
+      return [...clients].sort((a, b) => {
+        const weightDiff = priorityWeight(a.priority) - priorityWeight(b.priority);
+        if (weightDiff !== 0) return weightDiff;
+        return new Date(a.createdAt) - new Date(b.createdAt);
       });
-      obstacles = obstacles.filter((obstacle) => obstacle.y <= canvas.height + obstacle.height);
+    }
 
-      // Increase score over time.
-      score += (deltaMs / 1000) * gameConfig.scorePerSecond;
-      scoreLabel.textContent = `Score: ${Math.floor(score)}`;
+    function syncStateFromStorage() {
+      seedUsersIfNeeded();
+      seedClientsIfNeeded();
+      state.users = readStorage(USERS_KEY, []);
+      state.clients = migrateClients(readStorage(CLIENTS_KEY, []));
+      writeStorage(CLIENTS_KEY, state.clients);
+    }
 
-      // Collision detection (AABB).
-      for (const obstacle of obstacles) {
-        if (
-          obstacle.x < player.x + player.width &&
-          obstacle.x + obstacle.width > player.x &&
-          obstacle.y < player.y + player.height &&
-          obstacle.y + obstacle.height > player.y
-        ) {
-          endGame();
-          return;
+    function migrateClients(clients) {
+      const fallbackAssignee = defaultUsers.find((user) => user.role === 'supervisor')?.id ?? defaultUsers[0].id;
+      return clients.map((client) => {
+        if (client.assigneeId) {
+          return client;
         }
-      }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw player.
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-
-      // Draw obstacles.
-      obstacles.forEach((obstacle) => {
-        ctx.fillStyle = obstacle.color;
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        const byOwner = state.users.find((user) => normalize(user.fullName) === normalize(client.owner || ''));
+        return {
+          ...client,
+          assigneeId: byOwner?.id ?? fallbackAssignee
+        };
       });
     }
 
-    function endGame() {
-      gameOver = true;
-      cancelAnimationFrame(animationId);
-      finalScoreLabel.textContent = `Final Score: ${Math.floor(score)}`;
-      overlay.style.display = 'flex';
+    function saveUsers() {
+      writeStorage(USERS_KEY, state.users);
+      lastUpdateBadge.textContent = `Atualizado em ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
     }
 
-    let lastFrameTime = performance.now();
-
-    function gameLoop(timestamp) {
-      if (gameOver) return;
-
-      const deltaMs = timestamp - lastFrameTime;
-      lastFrameTime = timestamp;
-
-      update(deltaMs);
-      draw();
-
-      animationId = requestAnimationFrame(gameLoop);
+    function saveClients() {
+      writeStorage(CLIENTS_KEY, state.clients);
+      lastUpdateBadge.textContent = `Atualizado em ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
     }
 
-    // Keyboard input listeners.
-    window.addEventListener('keydown', (event) => {
-      if (event.key in keys) {
-        keys[event.key] = true;
+    function saveSession(userId) {
+      writeStorage(SESSION_KEY, { userId });
+    }
+
+    function clearSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function restoreSession() {
+      const session = readStorage(SESSION_KEY, null);
+      if (!session?.userId) return;
+      const user = state.users.find((item) => item.id === session.userId && item.active);
+      if (user) {
+        state.currentUser = user;
+      } else {
+        clearSession();
       }
-    });
+    }
 
-    window.addEventListener('keyup', (event) => {
-      if (event.key in keys) {
-        keys[event.key] = false;
+    function renderStageOptions() {
+      stageSelect.innerHTML = stages.map((stage) => `<option value="${stage.id}">${stage.title}</option>`).join('');
+      stageSelect.value = stages[0].id;
+    }
+
+    function renderPipelineSteps() {
+      pipelineSteps.innerHTML = stages.map((stage) => `<span class="step-chip">${stage.title}</span>`).join('');
+    }
+
+    function renderAssigneeOptions() {
+      const options = availableAssignees();
+      const currentValue = clientAssignee.value;
+      clientAssignee.innerHTML = options
+        .map((user) => `<option value="${user.id}">${user.fullName} · ${roleLabel(user.role)}</option>`)
+        .join('');
+
+      if (!isSupervisor()) {
+        clientAssignee.value = state.currentUser.id;
+        clientAssignee.disabled = true;
+      } else {
+        clientAssignee.disabled = false;
+        clientAssignee.value = options.some((user) => user.id === currentValue) ? currentValue : (options[0]?.id ?? '');
       }
+    }
+
+    function renderSupervisorPasswordOptions() {
+      if (!isSupervisor()) {
+        supervisorPasswordForm.classList.add('hidden');
+        targetUserId.innerHTML = '';
+        return;
+      }
+
+      supervisorPasswordForm.classList.remove('hidden');
+      targetUserId.innerHTML = availableAssignees()
+        .map((user) => `<option value="${user.id}">${user.fullName} · @${user.username}</option>`)
+        .join('');
+    }
+
+    function renderOwnerFilter() {
+      const visibleAssignees = isSupervisor() && state.visibility === 'all'
+        ? availableAssignees()
+        : availableAssignees().filter((user) => user.id === state.currentUser?.id);
+
+      ownerFilter.innerHTML = [
+        '<option value="">Todos</option>',
+        ...visibleAssignees.map((user) => `<option value="${user.id}">${user.fullName}</option>`)
+      ].join('');
+
+      if (!visibleAssignees.some((user) => user.id === state.owner)) {
+        state.owner = '';
+      }
+      ownerFilter.value = state.owner;
+    }
+
+    function updateVisibilityControls() {
+      if (isSupervisor()) {
+        visibilityFilter.disabled = false;
+        visibilityFilter.parentElement.classList.remove('hidden');
+      } else {
+        state.visibility = 'mine';
+        visibilityFilter.value = 'mine';
+        visibilityFilter.disabled = true;
+      }
+    }
+
+    function updateTextsForRole() {
+      const userName = state.currentUser?.fullName ?? 'Usuário';
+      const supervisorMode = isSupervisor() && state.visibility === 'all';
+      const ownMode = !isSupervisor() || state.visibility === 'mine';
+
+      currentUserBadge.textContent = `${userName} · ${roleLabel(state.currentUser?.role)}`;
+      currentScopeBadge.textContent = supervisorMode ? 'Escopo: equipe inteira' : 'Escopo: minha carteira';
+      welcomeText.textContent = isSupervisor()
+        ? 'Você pode acompanhar todos os clientes da esteira e administrar acessos do setor.'
+        : 'Você está vendo apenas os clientes vinculados ao seu usuário como Agente de Implantação.';
+      heroTitle.textContent = supervisorMode
+        ? 'Visão consolidada da esteira de implantação.'
+        : 'Sua carteira de clientes em implantação.';
+      heroDescription.textContent = supervisorMode
+        ? 'Acompanhe toda a equipe, filtre responsáveis e monitore a operação completa do setor.'
+        : 'Cadastre novos projetos, acompanhe o avanço por etapa e mantenha a sua carteira organizada.';
+      heroAsideText.textContent = supervisorMode
+        ? 'Como Supervisor, você pode visualizar todos os clientes, criar usuários e definir quem administra o pipeline.'
+        : 'Como Agente de Implantação, você registra seus clientes e evolui os cards ao longo da implantação.';
+      formDescription.textContent = isSupervisor()
+        ? 'Cadastre implantações e escolha qual Agente de Implantação ficará responsável por cada cliente.'
+        : 'Cadastre clientes da sua carteira. Novos projetos serão vinculados automaticamente ao seu usuário.';
+      boardDescription.textContent = ownMode
+        ? 'Veja a esteira operacional dentro do seu escopo de atuação.'
+        : 'Veja toda a esteira operacional da equipe e acompanhe a carga por Agente de Implantação.';
+      toolbarNote.textContent = ownMode
+        ? 'Mostrando apenas clientes visíveis para o usuário autenticado.'
+        : 'Modo Supervisor ativo: a esteira reúne todas as carteiras da equipe.';
+      usersPanelDescription.textContent = isSupervisor()
+        ? 'Crie acessos, promova um Agente de Implantação a Supervisor, bloqueie usuários e redefina senhas quando necessário.'
+        : 'A lista abaixo mostra os Agentes cadastrados, mas somente Supervisores podem alterar permissões.';
+      accountPanelDescription.textContent = isSupervisor()
+        ? 'Você pode trocar sua senha e também redefinir a senha de qualquer usuário ativo da equipe.'
+        : 'Use este painel para trocar sua senha de acesso ao sistema.';
+      userPanel.classList.toggle('hidden', !isSupervisor());
+      loadUserExamplesBtn.classList.toggle('hidden', !isSupervisor());
+      resetBoardBtn.textContent = isSupervisor() && state.visibility === 'all' ? 'Limpar clientes visíveis' : 'Limpar meus clientes';
+    }
+
+    function updateMetrics() {
+      const visible = filteredClients();
+      const total = visible.length;
+      const high = visible.filter((client) => client.priority === 'Alta').length;
+      const executing = visible.filter((client) => !['handoff', 'golive'].includes(client.stage)).length;
+      const ready = visible.filter((client) => client.stage === 'training').length;
+      const owners = new Set(visible.map((client) => client.assigneeId)).size;
+
+      const metrics = [
+        { label: 'Clientes visíveis', value: total },
+        { label: 'Prioridade alta', value: high },
+        { label: 'Implantações em execução', value: executing },
+        { label: isSupervisor() && state.visibility === 'all' ? 'Agentes ativos' : 'Clientes em treinamento', value: isSupervisor() && state.visibility === 'all' ? owners : ready }
+      ];
+
+      metricsGrid.innerHTML = metrics.map((metric) => `
+        <article class="metric-card">
+          <span>${metric.label}</span>
+          <strong>${metric.value}</strong>
+        </article>
+      `).join('');
+    }
+
+    function createCard(client) {
+      const card = document.createElement('article');
+      card.className = 'client-card';
+
+      const assignee = getUserById(client.assigneeId);
+      const stageIndex = stages.findIndex((stage) => stage.id === client.stage);
+      const previousStage = stages[stageIndex - 1];
+      const nextStage = stages[stageIndex + 1];
+      const canReassign = isSupervisor() && state.visibility === 'all';
+
+      card.innerHTML = `
+        <div>
+          <div class="tag-row">
+            <span class="tag">${client.priority}</span>
+            <span class="tag">${client.segment}</span>
+            <span class="tag">Agente: ${assignee?.fullName ?? 'Sem Agente'}</span>
+          </div>
+          <h4>${client.name}</h4>
+        </div>
+        <div class="user-meta">
+          <span class="meta-pill">Contato: ${client.contact}</span>
+          <span class="meta-pill">Etapa: ${stages[stageIndex]?.title ?? client.stage}</span>
+          <span class="meta-pill">Agente de Implantação: ${assignee?.fullName ?? 'Sem Agente'}</span>
+        </div>
+        <p>${client.notes || 'Sem observações cadastradas.'}</p>
+        <div class="card-actions">
+          <button type="button" class="secondary-btn" data-action="back" ${previousStage ? '' : 'disabled'}>◀ Voltar</button>
+          <button type="button" class="secondary-btn" data-action="next" ${nextStage ? '' : 'disabled'}>Avançar ▶</button>
+          <button type="button" class="danger-btn" data-action="delete">Excluir</button>
+        </div>
+        ${canReassign ? `
+          <label>
+            Reatribuir cliente
+            <select data-action="reassign">
+              ${availableAssignees().map((user) => `<option value="${user.id}" ${user.id === client.assigneeId ? 'selected' : ''}>${user.fullName}</option>`).join('')}
+            </select>
+          </label>
+        ` : ''}
+      `;
+
+      card.querySelector('[data-action="back"]').addEventListener('click', () => {
+        if (previousStage) moveClient(client.id, { stage: previousStage.id });
+      });
+
+      card.querySelector('[data-action="next"]').addEventListener('click', () => {
+        if (nextStage) moveClient(client.id, { stage: nextStage.id });
+      });
+
+      card.querySelector('[data-action="delete"]').addEventListener('click', () => {
+        deleteClient(client.id);
+      });
+
+      const reassignSelect = card.querySelector('[data-action="reassign"]');
+      if (reassignSelect) {
+        reassignSelect.addEventListener('change', (event) => {
+          moveClient(client.id, { assigneeId: event.target.value });
+        });
+      }
+
+      return card;
+    }
+
+    function renderBoard() {
+      updateTextsForRole();
+      updateVisibilityControls();
+      renderOwnerFilter();
+      renderAssigneeOptions();
+      renderSupervisorPasswordOptions();
+      updateMetrics();
+
+      const clients = filteredClients();
+      kanbanColumns.innerHTML = '';
+
+      stages.forEach((stage) => {
+        const stageClients = sortClients(clients.filter((client) => client.stage === stage.id));
+        const column = document.createElement('section');
+        column.className = 'kanban-column';
+        column.style.color = stage.accent;
+        column.innerHTML = `
+          <header>
+            <div>
+              <h3>${stage.title}</h3>
+              <p class="section-description">${stageClients.length} cliente(s) nesta etapa</p>
+            </div>
+            <span class="column-count">${stageClients.length}</span>
+          </header>
+          <div class="column-accent"></div>
+          <div class="cards-stack"></div>
+        `;
+
+        const stack = column.querySelector('.cards-stack');
+        if (stageClients.length === 0) {
+          stack.innerHTML = `<div class="empty-state">Nenhum cliente em <strong>${stage.title}</strong> dentro do escopo atual.</div>`;
+        } else {
+          stageClients.forEach((client) => stack.appendChild(createCard(client)));
+        }
+
+        kanbanColumns.appendChild(column);
+      });
+    }
+
+    function renderUsersList() {
+      const visibleUsers = isSupervisor() ? state.users : state.users.filter((user) => user.active);
+      usersList.innerHTML = '';
+
+      if (visibleUsers.length === 0) {
+        usersList.innerHTML = '<div class="empty-state">Nenhum usuário cadastrado.</div>';
+        return;
+      }
+
+      visibleUsers.forEach((user) => {
+        const totalClients = state.clients.filter((client) => client.assigneeId === user.id).length;
+        const row = document.createElement('article');
+        row.className = 'user-row';
+        row.innerHTML = `
+          <div>
+            <strong>${user.fullName}</strong>
+            <p>@${user.username}</p>
+          </div>
+          <div class="tag-row">
+            <span class="role-chip">${roleLabel(user.role)}</span>
+            <span class="role-chip">${user.active ? 'Ativo' : 'Inativo'}</span>
+            <span class="role-chip">${totalClients} cliente(s)</span>
+          </div>
+          ${isSupervisor() ? `
+            <div class="user-actions">
+              <button type="button" class="secondary-btn" data-action="toggle-role">${user.role === 'supervisor' ? 'Tornar Agente' : 'Tornar Supervisor'}</button>
+              <button type="button" class="danger-btn" data-action="toggle-status">${user.active ? 'Desativar' : 'Ativar'}</button>
+            </div>
+          ` : ''}
+        `;
+
+        if (isSupervisor()) {
+          row.querySelector('[data-action="toggle-role"]').addEventListener('click', () => toggleUserRole(user.id));
+          row.querySelector('[data-action="toggle-status"]').addEventListener('click', () => toggleUserStatus(user.id));
+        }
+
+        usersList.appendChild(row);
+      });
+    }
+
+    function roleLabel(role) {
+      return role === 'supervisor' ? 'Supervisor' : 'Agente de Implantação';
+    }
+
+    function addClient(event) {
+      event.preventDefault();
+      const formData = new FormData(clientForm);
+      const assigneeId = isSupervisor() ? formData.get('clientAssignee').toString() : state.currentUser.id;
+      const newClient = {
+        id: crypto.randomUUID(),
+        name: formData.get('clientName').toString().trim(),
+        segment: formData.get('clientSegment').toString().trim(),
+        assigneeId,
+        contact: formData.get('clientContact').toString().trim(),
+        priority: formData.get('clientPriority').toString(),
+        stage: formData.get('clientStage').toString(),
+        notes: formData.get('clientNotes').toString().trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      if (!newClient.name || !newClient.segment || !newClient.contact || !newClient.assigneeId) {
+        return;
+      }
+
+      state.clients.unshift(newClient);
+      saveClients();
+      clientForm.reset();
+      stageSelect.value = stages[0].id;
+      renderBoard();
+      renderUsersList();
+    }
+
+    function moveClient(clientId, changes) {
+      state.clients = state.clients.map((client) => {
+        if (client.id !== clientId) return client;
+        if (!isSupervisor() && client.assigneeId !== state.currentUser.id) return client;
+        return { ...client, ...changes };
+      });
+      saveClients();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function deleteClient(clientId) {
+      state.clients = state.clients.filter((client) => {
+        if (client.id !== clientId) return true;
+        if (!isSupervisor() && client.assigneeId !== state.currentUser.id) return true;
+        return false;
+      });
+      saveClients();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function loadExamples() {
+      const existingNames = new Set(state.clients.map((client) => client.name));
+      const visibleSampleClients = defaultClients.filter((client) => {
+        if (existingNames.has(client.name)) return false;
+        if (isSupervisor() && state.visibility === 'all') return true;
+        return client.assigneeId === state.currentUser.id;
+      });
+      state.clients = [...visibleSampleClients, ...state.clients];
+      saveClients();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function resetVisibleClients() {
+      const base = visibleClientsBase();
+      const visibleIds = new Set(filteredClients().map((client) => client.id));
+      if (visibleIds.size === 0) return;
+      const confirmed = window.confirm('Deseja remover os clientes visíveis na esteira atual?');
+      if (!confirmed) return;
+
+      const protectedIds = new Set(base.map((client) => client.id));
+      state.clients = state.clients.filter((client) => {
+        if (!protectedIds.has(client.id)) return true;
+        return !visibleIds.has(client.id);
+      });
+      saveClients();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const formData = new FormData(loginForm);
+      const username = normalize(formData.get('username'));
+      const password = formData.get('password').toString();
+      const user = state.users.find((item) => normalize(item.username) === username && item.password === password && item.active);
+
+      if (!user) {
+        loginStatus.textContent = 'Usuário ou senha inválidos.';
+        loginStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.currentUser = user;
+      state.owner = '';
+      state.search = '';
+      state.visibility = user.role === 'supervisor' ? 'all' : 'mine';
+      saveSession(user.id);
+      loginStatus.textContent = 'Acesso realizado com sucesso.';
+      loginStatus.className = 'status-msg success';
+      searchInput.value = '';
+      visibilityFilter.value = state.visibility;
+      swapScreens();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function logout() {
+      clearSession();
+      state.currentUser = null;
+      loginForm.reset();
+      loginStatus.textContent = '';
+      loginStatus.className = 'status-msg';
+      swapScreens();
+    }
+
+    function swapScreens() {
+      const authenticated = Boolean(state.currentUser);
+      loginScreen.classList.toggle('hidden', authenticated);
+      appScreen.classList.toggle('hidden', !authenticated);
+    }
+
+    function updateCurrentUserRecord() {
+      if (!state.currentUser) return;
+      state.currentUser = getUserById(state.currentUser.id);
+    }
+
+    function changeOwnPassword(event) {
+      event.preventDefault();
+      if (!state.currentUser) return;
+
+      const formData = new FormData(passwordForm);
+      const currentPassword = formData.get('currentPassword').toString();
+      const newPassword = formData.get('newPassword').toString().trim();
+      const confirmPassword = formData.get('confirmPassword').toString().trim();
+
+      if (state.currentUser.password !== currentPassword) {
+        passwordStatus.textContent = 'A senha atual informada não confere.';
+        passwordStatus.className = 'status-msg error';
+        return;
+      }
+      if (newPassword.length < 4) {
+        passwordStatus.textContent = 'A nova senha precisa ter pelo menos 4 caracteres.';
+        passwordStatus.className = 'status-msg error';
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        passwordStatus.textContent = 'A confirmação da nova senha não confere.';
+        passwordStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.users = state.users.map((user) => user.id === state.currentUser.id ? { ...user, password: newPassword } : user);
+      updateCurrentUserRecord();
+      saveUsers();
+      passwordForm.reset();
+      passwordStatus.textContent = 'Sua senha foi alterada com sucesso.';
+      passwordStatus.className = 'status-msg success';
+      renderUsersList();
+    }
+
+    function resetUserPassword(event) {
+      event.preventDefault();
+      if (!isSupervisor()) return;
+
+      const formData = new FormData(supervisorPasswordForm);
+      const userId = formData.get('targetUserId').toString();
+      const newPassword = formData.get('resetPassword').toString().trim();
+
+      if (!userId || newPassword.length < 4) {
+        passwordStatus.textContent = 'Defina uma senha com pelo menos 4 caracteres para o usuário selecionado.';
+        passwordStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.users = state.users.map((user) => user.id === userId ? { ...user, password: newPassword } : user);
+      updateCurrentUserRecord();
+      saveUsers();
+      supervisorPasswordForm.reset();
+      renderSupervisorPasswordOptions();
+      passwordStatus.textContent = 'Senha do usuário redefinida com sucesso.';
+      passwordStatus.className = 'status-msg success';
+      renderUsersList();
+    }
+
+    function addUser(event) {
+      event.preventDefault();
+      if (!isSupervisor()) return;
+      const formData = new FormData(userForm);
+      const username = normalize(formData.get('username'));
+      const fullName = formData.get('fullName').toString().trim();
+      const password = formData.get('password').toString().trim();
+      const role = formData.get('role').toString();
+
+      if (!username || !fullName || !password) return;
+      if (state.users.some((user) => normalize(user.username) === username)) {
+        userFormStatus.textContent = 'Já existe um usuário com esse login.';
+        userFormStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.users.push({
+        id: crypto.randomUUID(),
+        fullName,
+        username,
+        password,
+        role,
+        active: true
+      });
+      saveUsers();
+      userForm.reset();
+      userFormStatus.textContent = 'Usuário criado com sucesso.';
+      userFormStatus.className = 'status-msg success';
+      renderBoard();
+      renderUsersList();
+    }
+
+    function toggleUserRole(userId) {
+      const target = getUserById(userId);
+      if (!target) return;
+      const activeSupervisors = state.users.filter((user) => user.role === 'supervisor' && user.active);
+      if (target.role === 'supervisor' && target.active && activeSupervisors.length === 1) {
+        userFormStatus.textContent = 'É necessário manter ao menos um Supervisor ativo.';
+        userFormStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.users = state.users.map((user) => {
+        if (user.id !== userId) return user;
+        return { ...user, role: user.role === 'supervisor' ? 'agent' : 'supervisor' };
+      });
+      updateCurrentUserRecord();
+      saveUsers();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function toggleUserStatus(userId) {
+      const target = getUserById(userId);
+      if (!target) return;
+      const activeSupervisors = state.users.filter((user) => user.role === 'supervisor' && user.active);
+      if (target.role === 'supervisor' && target.active && activeSupervisors.length === 1) {
+        userFormStatus.textContent = 'É necessário manter ao menos um Supervisor ativo.';
+        userFormStatus.className = 'status-msg error';
+        return;
+      }
+      if (target.id === state.currentUser.id) {
+        userFormStatus.textContent = 'Você não pode desativar o próprio usuário autenticado.';
+        userFormStatus.className = 'status-msg error';
+        return;
+      }
+
+      state.users = state.users.map((user) => user.id === userId ? { ...user, active: !user.active } : user);
+      updateCurrentUserRecord();
+      saveUsers();
+      renderBoard();
+      renderUsersList();
+    }
+
+    function reloadDefaultUsers() {
+      if (!isSupervisor()) return;
+      const confirmed = window.confirm('Deseja restaurar os usuários padrão? Usuários customizados serão removidos.');
+      if (!confirmed) return;
+      state.users = defaultUsers.map((user) => ({ ...user }));
+      saveUsers();
+      state.currentUser = getUserById(state.currentUser.id) ?? state.users[0];
+      saveSession(state.currentUser.id);
+      userFormStatus.textContent = 'Usuários padrão restaurados.';
+      userFormStatus.className = 'status-msg success';
+      renderBoard();
+      renderUsersList();
+    }
+
+    loginForm.addEventListener('submit', handleLogin);
+    logoutBtn.addEventListener('click', logout);
+    clientForm.addEventListener('submit', addClient);
+    passwordForm.addEventListener('submit', changeOwnPassword);
+    supervisorPasswordForm.addEventListener('submit', resetUserPassword);
+    loadExamplesBtn.addEventListener('click', loadExamples);
+    resetBoardBtn.addEventListener('click', resetVisibleClients);
+    searchInput.addEventListener('input', (event) => {
+      state.search = normalize(event.target.value);
+      renderBoard();
     });
+    ownerFilter.addEventListener('change', (event) => {
+      state.owner = event.target.value;
+      renderBoard();
+    });
+    visibilityFilter.addEventListener('change', (event) => {
+      state.visibility = event.target.value;
+      renderBoard();
+    });
+    userForm.addEventListener('submit', addUser);
+    loadUserExamplesBtn.addEventListener('click', reloadDefaultUsers);
 
-    restartBtn.addEventListener('click', resetGame);
+    function init() {
+      syncStateFromStorage();
+      restoreSession();
+      renderStageOptions();
+      renderPipelineSteps();
+      renderSupervisorPasswordOptions();
+      lastUpdateBadge.textContent = `Atualizado em ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+      visibilityFilter.value = 'all';
+      swapScreens();
+      if (state.currentUser) {
+        state.visibility = isSupervisor() ? 'all' : 'mine';
+        visibilityFilter.value = state.visibility;
+        renderBoard();
+        renderUsersList();
+      }
+    }
 
-    resetGame();
+    init();
   </script>
 </body>
 </html>
